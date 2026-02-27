@@ -507,3 +507,8 @@ if __name__ == "__main__":
     print("  🛑 Para parar: Ctrl+C")
     print("═"*55 + "\n")
     app.run(debug=False, host="0.0.0.0", port=port)
+
+# ──────────────────────────────────────────
+#  INICIA O SERVIDOR COM GUNICORN
+# ──────────────────────────────────────────
+# gunicorn painel_combustivel:app
