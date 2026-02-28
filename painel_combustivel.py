@@ -208,6 +208,17 @@ app.layout = html.Div(style={
             ),
         ], style={"flex": "1", "minWidth": "120px"}),
 
+        html.Div([
+            html.Label("🆔 ID", style={"fontSize": "12px", "color": CORES["subtexto"], "marginBottom": "6px", "display": "block"}),
+            dcc.Dropdown(
+                id="filtro-id",
+                options=[{"label": "Todos", "value": "TODOS"}] +
+                        [{"label": str(i), "value": str(i)} for i in sorted(df["ID"].dropna().unique())],
+                value="TODOS", clearable=False,
+                style={"background": CORES["card"], "color": "#000"}
+            ),
+        ], style={"flex": "1", "minWidth": "120px"}),
+
     ], style={
         "display": "flex", "gap": "16px", "flexWrap": "wrap",
         "background": CORES["card"], "border": f"1px solid {CORES['borda']}",
