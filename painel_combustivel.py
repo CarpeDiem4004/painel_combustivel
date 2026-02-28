@@ -317,7 +317,7 @@ app.layout = html.Div(style={
         Input("filtro-base",        "value"),
         Input("filtro-id",          "value"),
 )
-    def atualiza_painel(start_date, end_date, combustivel, modelo, uf, base, id_value):
+def atualiza_painel(start_date, end_date, combustivel, modelo, uf, base, id_value):
     # ── Filtrar ──
     dff = df.copy()
     if start_date:
@@ -330,10 +330,10 @@ app.layout = html.Div(style={
         dff = dff[dff["MODELO VEICULO"] == modelo]
     if uf != "TODOS":
         dff = dff[dff["UF"] == uf]
-        if base != "TODOS":
-            dff = dff[dff["Base"] == base]
-        if id_value != "TODOS":
-            dff = dff[dff["ID"].astype(str) == id_value]
+    if base != "TODOS":
+        dff = dff[dff["Base"] == base]
+    if id_value != "TODOS":
+        dff = dff[dff["ID"].astype(str) == id_value]
 
     # ── KPIs ──
     total_valor   = dff["VALOR EMISSAO"].sum()
