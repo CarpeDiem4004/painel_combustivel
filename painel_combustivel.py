@@ -1,3 +1,13 @@
+        html.Div([
+            html.Label("🆔 ID", style={"fontSize": "12px", "color": CORES["subtexto"], "marginBottom": "6px", "display": "block"}),
+            dcc.Dropdown(
+                id="filtro-id",
+                options=[{"label": "Todos", "value": "TODOS"}] +
+                        [{"label": str(i), "value": str(i)} for i in sorted(df["ID"].dropna().unique())],
+                value="TODOS", clearable=False,
+                style={"background": CORES["card"], "color": "#000"}
+            ),
+        ], style={"flex": "1", "minWidth": "120px"}),
 """
 ╔══════════════════════════════════════════════════════╗
 ║     PAINEL EXECUTIVO - GESTÃO DE COMBUSTÍVEL         ║
@@ -175,6 +185,17 @@ app.layout = html.Div(style={
             ),
         ], style={"flex": "1", "minWidth": "200px"}),
 
+            html.Div([
+                html.Label("🏢 Base", style={"fontSize": "12px", "color": CORES["subtexto"], "marginBottom": "6px", "display": "block"}),
+                dcc.Dropdown(
+                    id="filtro-base",
+                    options=[{"label": "Todos", "value": "TODOS"}] +
+                            [{"label": b, "value": b} for b in sorted(df["Base"].dropna().unique())],
+                    value="TODOS", clearable=False,
+                    style={"background": CORES["card"], "color": "#000"}
+                ),
+            ], style={"flex": "1", "minWidth": "160px"}),
+
         html.Div([
             html.Label("🚗 Modelo Veículo", style={"fontSize": "12px", "color": CORES["subtexto"], "marginBottom": "6px", "display": "block"}),
             dcc.Dropdown(
@@ -303,8 +324,10 @@ app.layout = html.Div(style={
     Input("filtro-combustivel", "value"),
     Input("filtro-modelo",      "value"),
     Input("filtro-uf",          "value"),
+        Input("filtro-base",        "value"),
+        Input("filtro-id",          "value"),
 )
-def atualiza_painel(start_date, end_date, combustivel, modelo, uf):
+    def atualiza_painel(start_date, end_date, combustivel, modelo, uf, base, id_value):
     # ── Filtrar ──
     dff = df.copy()
     if start_date:
@@ -317,6 +340,10 @@ def atualiza_painel(start_date, end_date, combustivel, modelo, uf):
         dff = dff[dff["MODELO VEICULO"] == modelo]
     if uf != "TODOS":
         dff = dff[dff["UF"] == uf]
+        if base != "TODOS":
+            dff = dff[dff["Base"] == base]
+        if id_value != "TODOS":
+            dff = dff[dff["ID"].astype(str) == id_value]
 
     # ── KPIs ──
     total_valor   = dff["VALOR EMISSAO"].sum()
