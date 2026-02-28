@@ -1,13 +1,3 @@
-        html.Div([
-            html.Label("🆔 ID", style={"fontSize": "12px", "color": CORES["subtexto"], "marginBottom": "6px", "display": "block"}),
-            dcc.Dropdown(
-                id="filtro-id",
-                options=[{"label": "Todos", "value": "TODOS"}] +
-                        [{"label": str(i), "value": str(i)} for i in sorted(df["ID"].dropna().unique())],
-                value="TODOS", clearable=False,
-                style={"background": CORES["card"], "color": "#000"}
-            ),
-        ], style={"flex": "1", "minWidth": "120px"}),
 """
 ╔══════════════════════════════════════════════════════╗
 ║     PAINEL EXECUTIVO - GESTÃO DE COMBUSTÍVEL         ║
