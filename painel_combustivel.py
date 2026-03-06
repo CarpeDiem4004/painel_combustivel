@@ -42,9 +42,9 @@ print("[DEBUG] Planilha carregada.")
 
 df["DATA"]           = df["DATA TRANSACAO"].dt.date
 df["ANO_MES"]        = df["DATA TRANSACAO"].dt.to_period("M").astype(str)
-df["VALOR EMISSAO"]  = pd.to_numeric(df["VALOR EMISSAO"], errors="coerce").fillna(0)
-df["LITROS"]         = pd.to_numeric(df["LITROS"], errors="coerce").fillna(0)
-df["VL/LITRO"]       = pd.to_numeric(df["VL/LITRO"], errors="coerce").fillna(0)
+df["VALOR EMISSAO"] = pd.to_numeric(df["VALOR EMISSAO"].astype(str).str.replace(',', '.'), errors="coerce").fillna(0)
+df["LITROS"] = pd.to_numeric(df["LITROS"].astype(str).str.replace(',', '.'), errors="coerce").fillna(0)
+df["VL/LITRO"] = pd.to_numeric(df["VL/LITRO"].astype(str).str.replace(',', '.'), errors="coerce").fillna(0)
 
 print("[DEBUG] Dados tratados.")
 
