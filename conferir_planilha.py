@@ -1,10 +1,11 @@
 import pandas as pd
-
-df = pd.read_excel('Dados.xlsx', sheet_name='Transações')
+arquivo = 'Dados.xlsx'
+aba = 'Transações'
+df = pd.read_excel(arquivo, sheet_name=aba)
 print('Colunas:', list(df.columns))
-print('Tipos de dados:')
+print('Primeira linha:')
+print(df.iloc[0])
+print('Tipos:')
 print(df.dtypes)
-print('Primeiras linhas:')
-print(df.head())
-print('Valores nulos por coluna:')
-print(df.isnull().sum())
+print('Resumo estatístico:')
+print(df.describe())

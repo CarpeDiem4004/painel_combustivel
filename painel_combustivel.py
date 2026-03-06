@@ -34,24 +34,64 @@ ABA_DADOS        = "Transações"
 # ──────────────────────────────────────────
 #  CARREGAMENTO E LIMPEZA DOS DADOS
 # ──────────────────────────────────────────
-df = pd.read_excel(CAMINHO_PLANILHA, sheet_name=ABA_DADOS)
+
+
+# --- LEITURA E LIMPEZA ROBUSTA ---
 print("[DEBUG] Início do script.")
 print("⏳ Carregando planilha...")
 df = pd.read_excel(CAMINHO_PLANILHA, sheet_name=ABA_DADOS)
 print("[DEBUG] Planilha carregada.")
 
-df["DATA"]           = df["DATA TRANSACAO"].dt.date
-df["ANO_MES"]        = df["DATA TRANSACAO"].dt.to_period("M").astype(str)
-df["VALOR EMISSAO"] = pd.to_numeric(df["VALOR EMISSAO"].astype(str).str.replace(',', '.'), errors="coerce").fillna(0)
-df["LITROS"] = pd.to_numeric(df["LITROS"].astype(str).str.replace(',', '.'), errors="coerce").fillna(0)
-df["VL/LITRO"] = pd.to_numeric(df["VL/LITRO"].astype(str).str.replace(',', '.'), errors="coerce").fillna(0)
-
-print("[DEBUG] Dados tratados.")
-
-df["CODIGO ESTABELECIMENTO"] = df["CODIGO ESTABELECIMENTO"].fillna("N/D").astype(str)
 df["Base"]   = df["Base"].fillna("N/D").astype(str)
 df["PLACA"]  = df["PLACA"].fillna("N/D").astype(str)
-
+# Limpa nomes das colunas (remove espaços extras)
+df.columns = [col.strip() for col in df.columns]
+# Renomeia colunas se necessário
+# Mapeamento de nomes alternativos para as colunas principais
+col_renomear = {
+        'NOME ESTABELECIMENTO': 'NOME ESTABELECIMENTO',
+        'ENDERECO': 'ENDERECO',
+        'BAIRRO': 'BAIRRO',
+        'CIDADE': 'CIDADE',
+        'UF': 'UF',
+    'VALOR total': 'VALOR EMISSAO',
+    'Valor total': 'VALOR EMISSAO',
+    'VALOR TOTAL': 'VALOR EMISSAO',
+    'Valor por litro': 'VL/LITRO',
+    'Preço Médio': 'VL/LITRO',
+    'PREÇO MÉDIO': 'VL/LITRO',
+    'Total de Litros': 'LITROS',
+    'TOTAL DE LITROS': 'LITROS',
+    'TIPO COMBUSTÍVEL': 'TIPO COMBUSTIVEL',
+    'TIPO COMBUSTIVEL': 'TIPO COMBUSTIVEL',
+    'CIDADE': 'CIDADE',
+    'Cidade': 'CIDADE',
+    'UF': 'UF',
+    'Uf': 'UF',
+}
+df = df.rename(columns=col_renomear)
+# Limpa e converte valores para número
+for col in ["VALOR EMISSAO", "LITROS", "VL/LITRO"]:
+    if col in df.columns:
+        df[col] = (
+            df[col]
+            .astype(str)
+            .str.replace('R$', '', regex=False)
+            .str.replace(' ', '', regex=False)
+            .str.replace(r'[^0-9,.-]', '', regex=True)
+            .str.replace(',', '.')
+        )
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+# Corrige escala de VL/LITRO se necessário
+if "VL/LITRO" in df.columns and df["VL/LITRO"].max() > 100:
+    df["VL/LITRO"] = df["VL/LITRO"] / 1000
+# Remove linhas de resumo e mantém apenas linhas com valores válidos
+df = df[(df["LITROS"] > 0) & (df["VL/LITRO"] > 0) & (df["VALOR EMISSAO"] > 0)]
+df["DATA"]    = pd.to_datetime(df["DATA TRANSACAO"], errors="coerce").dt.date
+df["ANO_MES"] = pd.to_datetime(df["DATA TRANSACAO"], errors="coerce").dt.to_period("M").astype(str)
+print("[DEBUG] Dados tratados.")
+df["Base"]   = df["Base"].fillna("N/D").astype(str)
+df["PLACA"]  = df["PLACA"].fillna("N/D").astype(str)
 print("[DEBUG] Substituições para exibição feitas.")
 
 
@@ -350,7 +390,8 @@ def atualiza_painel(start_date, end_date, combustivel, modelo, uf, base, id_valu
     total_valor   = dff["VALOR EMISSAO"].sum()
     total_trans   = len(dff)
     total_litros  = dff["LITROS"].sum()
-    preco_medio   = (dff["VL/LITRO"].replace(0, pd.NA).mean()) if len(dff) else 0
+    # Preço médio calculado como soma(valor) / soma(litros), igual ao Excel
+    preco_medio = (dff["VALOR EMISSAO"].sum() / dff["LITROS"].sum()) if dff["LITROS"].sum() > 0 else 0
     veiculos      = dff["PLACA"].nunique()
     cidades       = dff["CIDADE"].nunique()
 
